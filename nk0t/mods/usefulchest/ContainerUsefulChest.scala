@@ -17,7 +17,7 @@ class ContainerUsefulChest(inventory : IInventory,
 
     def init() = {
 
-        tileEntityUsefulChest.openChest()
+        tileEntityUsefulChest.openInventory
 
         val startSlot = (page - 1) * 104
 
@@ -50,7 +50,7 @@ class ContainerUsefulChest(inventory : IInventory,
             val itemstack1 = slot.getStack()
             itemstack == itemstack1.copy()
             if (index < 104) {
-                if (!mergeItemStack(itemstack1, 105, inventorySlots.size(), true)) {
+                if (!mergeItemStack(itemstack1, 105, inventorySlots.size, true)) {
                     return null
                 }
             }
@@ -63,15 +63,15 @@ class ContainerUsefulChest(inventory : IInventory,
                 slot.putStack(null)
             }
             else {
-                slot.onSlotChanged()
+                slot.onSlotChanged
             }
         }
         return itemstack
     }
 
-    override def onCraftGuiClosed(player : EntityPlayer) = {
-        tileEntityUsefulChest.closeChest()
+    override def onContainerClosed(player : EntityPlayer) = {
+        tileEntityUsefulChest.closeInventory
     }
 
-    def getChestInventory() = this.tileEntityUsefulChest
+    def getChestInventory = this.tileEntityUsefulChest
 }

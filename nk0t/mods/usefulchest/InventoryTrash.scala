@@ -16,19 +16,19 @@ class InventoryTrash extends IInventory {
 
     override def setInventorySlotContents(index : Int, itemstack : ItemStack) = {}
 
-    override def getInvName() = "Trash"
+    override def getInventoryName = "Trash"
 
-    override def isInvNameLocalized() = false
+    override def hasCustomInventoryName = false
 
     override def getInventoryStackLimit() = 64
 
-    override def onInventoryChanged() = {}
+    override def markDirty = {}
 
     override def isUseableByPlayer(entityplayer : EntityPlayer) = true
 
-    override def openChest() = {}
+    override def openInventory() = {}
 
-    override def closeChest() = {}
+    override def closeInventory() = {}
 
-    override def isStackValidForSlot(i : Int, itemstack : ItemStack) = true
+    override def isItemValidForSlot(i : Int, itemstack : ItemStack) = true
 }

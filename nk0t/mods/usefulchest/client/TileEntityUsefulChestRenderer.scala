@@ -1,5 +1,6 @@
 package nk0t.mods.usefulchest.client
 
+import net.minecraft.util.ResourceLocation
 import org.lwjgl.opengl.GL11
 
 import cpw.mods.fml.relauncher.Side
@@ -22,7 +23,7 @@ class TileEntityUsefulChestRenderer extends TileEntitySpecialRenderer {
 
         val direction = tileEntity.Direction
 
-        this.bindTextureByName("/nk0t/mods/usefulchest/resouces/usefulchest.png");
+        this.bindTexture(new ResourceLocation("usefulchest2", "textures/model/usefulchest.png"))
 
         GL11.glPushMatrix()
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F)

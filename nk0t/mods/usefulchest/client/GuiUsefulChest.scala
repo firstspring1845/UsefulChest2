@@ -4,19 +4,15 @@ import java.util.ArrayList
 
 import org.lwjgl.opengl.GL11
 
-import cpw.mods.fml.common.network.PacketDispatcher
 import cpw.mods.fml.relauncher.Side
 import cpw.mods.fml.relauncher.SideOnly
 import net.minecraft.client.gui.GuiButton
 import net.minecraft.client.gui.inventory.GuiContainer
 import net.minecraft.inventory.IInventory
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.util.StringTranslate
-import net.minecraft.world.World
-import nk0t.mods.usefulchest.ContainerUsefulChest
-import nk0t.mods.usefulchest.TileEntityUsefulChest
-import nk0t.mods.usefulchest.UsefulChestNBT
-import nk0t.mods.usefulchest.network.PacketHandler
+import net.minecraft.util.{ResourceLocation, StringTranslate}
+import net.minecraft.world.{ChunkPosition, World}
+import nk0t.mods.usefulchest.{UsefulChest, ContainerUsefulChest, TileEntityUsefulChest, UsefulChestNBT}
+import nk0t.mods.usefulchest.network.{MessageUsefulChest}
 
 @SideOnly(Side.CLIENT)
 class GuiUsefulChest(inventory : IInventory, tileEntityUsefulChest : TileEntityUsefulChest,
@@ -51,21 +47,21 @@ class GuiUsefulChest(inventory : IInventory, tileEntityUsefulChest : TileEntityU
 
     override def drawGuiContainerForegroundLayer(par1 : Int, par2 : Int) = {
 
-        fontRenderer.drawString(page.toString(), 180, 165, 0x404040)
-        fontRenderer.drawString("/", 195, 165, 0x404040)
-        fontRenderer.drawString(pageMax.toString(), 205, 165, 0x404040)
+        fontRendererObj.drawString(page.toString(), 180, 165, 0x404040)
+        fontRendererObj.drawString("/", 195, 165, 0x404040)
+        fontRendererObj.drawString(pageMax.toString(), 205, 165, 0x404040)
     }
 
     override def drawGuiContainerBackgroundLayer(f : Float, i : Int, j : Int) = {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F)
-        mc.renderEngine.bindTexture("/nk0t/mods/usefulchest/resouces/usefulchestContainer.png")
+        mc.renderEngine.bindTexture(new ResourceLocation("usefulchest2", "textures/gui/usefulchestContainer.png"))
         val x = (width - xSize) / 2
         val y = (height - ySize) / 2
         drawTexturedModalRect(x, y + 9, 0, 0, xSize, ySize - 18)
     }
 
     override def actionPerformed(guiButton : GuiButton) = {
-
+        val pos = new ChunkPosition(x, y, z)
         guiButton.id match {
 
             case PrevButtonID | NextButtonID => {
@@ -86,21 +82,13 @@ class GuiUsefulChest(inventory : IInventory, tileEntityUsefulChest : TileEntityU
                         this.page = 1
                     }
                 }
-
-                val nbt = createSendNBTBase()
-                nbt.setString(UsefulChestNBT.Mode, UsefulChestNBT.Page)
-                nbt.setInteger(UsefulChestNBT.Page, this.page)
                 tileEntityUsefulChest.Page = this.page
-                PacketDispatcher.sendPacketToServer(PacketHandler.createPacket(nbt))
+                UsefulChest.packetHandler.sendToServer(new MessageUsefulChest(pos, 0, page))
+                mc.thePlayer.openGui(UsefulChest.Instance, 0, world, x, y, z)
             }
-
             case SortButtonID => {
-
-                tileEntityUsefulChest.sortChest()
-
-                val nbt = createSendNBTBase()
-                nbt.setString(UsefulChestNBT.Mode, UsefulChestNBT.Sort)
-                PacketDispatcher.sendPacketToServer(PacketHandler.createPacket(nbt))
+                tileEntityUsefulChest.sortChest
+                UsefulChest.packetHandler.sendToServer(new MessageUsefulChest(pos, 1, -1))
             }
         }
 
@@ -109,20 +97,12 @@ class GuiUsefulChest(inventory : IInventory, tileEntityUsefulChest : TileEntityU
     override def drawScreen(x : Int, y : Int, k : Float) = {
         super.drawScreen(x, y, k)
 
-        if (this.isPointInRegion(trashSlot.xDisplayPosition, trashSlot.yDisplayPosition,
+        /*if (this.isPointInRegion(trashSlot.xDisplayPosition, trashSlot.yDisplayPosition,
             16, 16, x, y)) {
             this.drawCreativeTabHoveringText(
                 StringTranslate.getInstance().translateKey("inventory.binSlot"),
                 x, y);
-        }
-    }
-
-    def createSendNBTBase() : NBTTagCompound = {
-        val nbt = PacketHandler.createNBTBase(Side.SERVER)
-        nbt.setInteger("x", x)
-        nbt.setInteger("y", y)
-        nbt.setInteger("z", z)
-        return nbt
+        }*/
     }
 
 }

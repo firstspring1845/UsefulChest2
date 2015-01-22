@@ -12,28 +12,21 @@ class GuiHandler extends IGuiHandler {
 
     override def getServerGuiElement(ID : Int, player : EntityPlayer,
                                      world : World, x : Int, y : Int, z : Int) : Object = {
+        val tileEntity = world.getTileEntity(x, y, z)
 
-        val tileEntity = world.getBlockTileEntity(x, y, z)
-
-        if (tileEntity.isInstanceOf[TileEntityUsefulChest]) {
-
-            val usefulChest = tileEntity.asInstanceOf[TileEntityUsefulChest]
-            return new ContainerUsefulChest(player.inventory, usefulChest, usefulChest.Page)
+        tileEntity match {
+            case usefulChest : TileEntityUsefulChest => new ContainerUsefulChest(player.inventory, usefulChest, usefulChest.Page)
+            case _ => null
         }
-        return null
     }
 
     override def getClientGuiElement(ID : Int, player : EntityPlayer,
                                      world : World, x : Int, y : Int, z : Int) : Object = {
-
-        val tileEntity = world.getBlockTileEntity(x, y, z)
-
-        if (tileEntity.isInstanceOf[TileEntityUsefulChest]) {
-
-            val usefulChest = tileEntity.asInstanceOf[TileEntityUsefulChest]
-            return new GuiUsefulChest(player.inventory, usefulChest, usefulChest.Page, world, x, y, z)
+        val tileEntity = world.getTileEntity(x, y, z)
+        tileEntity match {
+            case usefulChest : TileEntityUsefulChest => new GuiUsefulChest(player.inventory, usefulChest, usefulChest.Page, world, x, y, z)
+            case _ => null
         }
-        return null
     }
 
 }

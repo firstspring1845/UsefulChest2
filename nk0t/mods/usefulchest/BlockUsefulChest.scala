@@ -1,12 +1,9 @@
 package nk0t.mods.usefulchest
 
-import scala.util.Random
-
-import net.minecraft.block.Block
-import net.minecraft.block.BlockContainer
+import net.minecraft.block.{Block, BlockContainer}
 import net.minecraft.block.material.Material
-import net.minecraft.client.renderer.texture.IconRegister
-import net.minecraft.entity.EntityLiving
+import net.minecraft.client.renderer.texture.IIconRegister
+import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
@@ -15,37 +12,37 @@ import net.minecraft.tileentity.TileEntity
 import net.minecraft.util.MathHelper
 import net.minecraft.world.World
 
-class BlockUsefulChest(blockId : Int) extends BlockContainer(blockId, Material.wood) {
+import scala.util.Random
 
-    val random = new Random()
+class BlockUsefulChest extends BlockContainer(Material.wood) {
+
+    val random = new Random
 
     this.setBlockBounds(0.0625F, 0.0F, 0.0625F, 0.9375F, 0.875F, 0.9375F)
     this.setHardness(5.0f)
     this.setResistance(10.0f)
-    this.setStepSound(Block.soundMetalFootstep)
+    this.setStepSound(Block.soundTypeMetal)
 
-    override def createNewTileEntity(world : World) : TileEntity = {
-
-        var tileentitychest = new TileEntityUsefulChest();
-        return tileentitychest;
+    override def createNewTileEntity(world: World, meta: Int): TileEntity = {
+        return new TileEntityUsefulChest;
     }
 
-    override def onBlockPlacedBy(world : World, x : Int, y : Int, z : Int,
-                                 entityLiving : EntityLiving, itemstack : ItemStack) = {
+    override def onBlockPlacedBy(world: World, x: Int, y: Int, z: Int,
+                                 entityLivingBase: EntityLivingBase, itemstack: ItemStack) = {
 
-        var tileentity = world.getBlockTileEntity(x, y, z).asInstanceOf[TileEntityUsefulChest]
-        var direction = MathHelper.floor_double(((entityLiving.rotationYaw * 4F) / 360F).asInstanceOf[Double] + 0.5D) & 3
-        tileentity.Direction = direction.asInstanceOf[Byte]
+        var tileentity = world.getTileEntity(x, y, z).asInstanceOf[TileEntityUsefulChest]
+        var direction = MathHelper.floor_double(((entityLivingBase.rotationYaw * 4F) / 360F).toDouble + 0.5D) & 3
+        tileentity.Direction = direction.toByte
     }
 
-    override def isOpaqueCube() = false
+    override def isOpaqueCube = false
 
-    override def renderAsNormalBlock() = false
+    override def renderAsNormalBlock = false
 
-    override def getRenderType() = UsefulChest.usefulChestRendererId
+    override def getRenderType = UsefulChest.usefulChestRendererId
 
-    override def onBlockActivated(world : World, x : Int, y : Int, z : Int, player : EntityPlayer,
-                                  s : Int, p : Float, q : Float, r : Float) : Boolean = {
+    override def onBlockActivated(world: World, x: Int, y: Int, z: Int, player: EntityPlayer,
+                                  s: Int, p: Float, q: Float, r: Float): Boolean = {
 
         if (world.isRemote) {
             return true
@@ -56,9 +53,9 @@ class BlockUsefulChest(blockId : Int) extends BlockContainer(blockId, Material.w
         }
     }
 
-    override def breakBlock(world : World, i : Int, j : Int, k : Int, l : Int, m : Int) = {
+    override def breakBlock(world: World, i: Int, j: Int, k: Int, block: Block, m: Int) = {
 
-        val tileentitychest = world.getBlockTileEntity(i, j, k).asInstanceOf[TileEntityUsefulChest]
+        val tileentitychest = world.getTileEntity(i, j, k).asInstanceOf[TileEntityUsefulChest]
 
         if (tileentitychest != null) {
             for (j1 <- 0 to tileentitychest.getSizeInventory - 1) {
@@ -68,7 +65,7 @@ class BlockUsefulChest(blockId : Int) extends BlockContainer(blockId, Material.w
                     val f = this.random.nextFloat() * 0.8F + 0.1F
                     val f1 = this.random.nextFloat() * 0.8F + 0.1F
                     val f2 = this.random.nextFloat() * 0.8F + 0.1F
-                    var entityitem : EntityItem = null
+                    var entityitem: EntityItem = null
 
                     while (itemstack.stackSize > 0) {
 
@@ -80,19 +77,19 @@ class BlockUsefulChest(blockId : Int) extends BlockContainer(blockId, Material.w
 
                         itemstack.stackSize -= k1;
 
-                        entityitem = new EntityItem(world, (i.asInstanceOf[Float] + f).asInstanceOf[Double],
-                            (j.asInstanceOf[Float] + f1).asInstanceOf[Double],
-                            (k.asInstanceOf[Float] + f2).asInstanceOf[Double],
-                            new ItemStack(itemstack.itemID, k1, itemstack.getItemDamage()))
+                        entityitem = new EntityItem(world, (i.toFloat + f).toDouble,
+                            (j.toFloat + f1).toDouble,
+                            (k.toFloat + f2).toDouble,
+                            new ItemStack(itemstack.getItem, k1, itemstack.getItemDamage))
                         val f3 = 0.05F;
 
-                        entityitem.motionX = (this.random.nextGaussian().asInstanceOf[Float] * f3).asInstanceOf[Double];
-                        entityitem.motionY = (this.random.nextGaussian().asInstanceOf[Float] * f3 + 0.2f).asInstanceOf[Double];
-                        entityitem.motionZ = (this.random.nextGaussian().asInstanceOf[Float] * f3).asInstanceOf[Double];
+                        entityitem.motionX = (this.random.nextGaussian().toFloat * f3).toDouble;
+                        entityitem.motionY = (this.random.nextGaussian().toFloat * f3 + 0.2f).toDouble;
+                        entityitem.motionZ = (this.random.nextGaussian().toFloat * f3).toDouble;
 
-                        if (itemstack.hasTagCompound()) {
+                        if (itemstack.hasTagCompound) {
 
-                            entityitem.getEntityItem().setTagCompound(itemstack.getTagCompound().copy().asInstanceOf[NBTTagCompound]);
+                            entityitem.getEntityItem().setTagCompound(itemstack.getTagCompound.copy.asInstanceOf[NBTTagCompound]);
                         }
 
                         world.spawnEntityInWorld(entityitem)
@@ -100,13 +97,13 @@ class BlockUsefulChest(blockId : Int) extends BlockContainer(blockId, Material.w
                 }
             }
 
-            world.func_96440_m(i, j, k, l);
+            world.func_147453_f(i, j, k, block);
         }
 
-        super.breakBlock(world, i, j, k, l, m)
+        super.breakBlock(world, i, j, k, block, m)
     }
 
-    override def registerIcons(register : IconRegister) = {
+    override def registerBlockIcons(register: IIconRegister) = {
         this.blockIcon = register.registerIcon("blockDiamond")
     }
 }

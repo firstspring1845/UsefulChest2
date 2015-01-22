@@ -1,53 +1,44 @@
 package nk0t.mods.usefulchest
 
-import net.minecraft.item.ItemStack
+import java.util
+
+import net.minecraft.inventory.IInventory
+import net.minecraft.item.{Item, ItemStack}
+import net.minecraft.nbt.NBTTagCompound
+
+import scala.collection.mutable.HashMap
 
 object UsefulChestUtilities {
 
-    def sortUsefulChest(usefulchest : TileEntityUsefulChest) = {
+    class Stacks(var stack: Int = 0, val tagMap: HashMap[NBTTagCompound, Int] = new HashMap)
 
-        val sortedItems = usefulchest.usefulChestContents.filter(_ != null)
-            .sortWith((a, b) => {
-
-                if (a.itemID == b.itemID) {
-                    a.getItemDamage() < b.getItemDamage()
-                }
-                else {
-                    a.itemID < b.itemID
-                }
+    class ItemStacks(val item: Item, val damageMap: HashMap[Int, Stacks] = new HashMap) {
+        def getItemStacks = {
+            damageMap.toArray.sortBy(_._1).flatMap(d => {
+                (List((null, d._2.stack)) ++ d._2.tagMap).flatMap(s => {
+                    val is = new ItemStack(item, 0, d._1)
+                    is.setTagCompound(s._1)
+                    (0 until s._2 by 64).map(i => {
+                        is.stackSize = Math.min(64, s._2 - i)
+                        is.copy
+                    })
+                })
             })
-
-        usefulchest.usefulChestContents = new Array[ItemStack](usefulchest.getSizeInventory())
-
-        val mergedItems = mergeStack(sortedItems)
-
-        mergedItems.copyToArray(usefulchest.usefulChestContents)
+        }
     }
 
-    def mergeStack(sortedItems : Array[ItemStack]) : Array[ItemStack] = {
-
-        var mergedItems = List.empty[ItemStack]
-
-        for (itemstack <- sortedItems) {
-
-            if (0 < mergedItems.size && mergedItems.last.itemID == itemstack.itemID &&
-                mergedItems.last.getItemDamage() == itemstack.getItemDamage()) {
-
-                val size = mergedItems.last.getMaxStackSize() - mergedItems.last.stackSize
-                if (size >= itemstack.stackSize) {
-                    mergedItems.last.stackSize += itemstack.stackSize
-                }
-                else {
-                    mergedItems.last.stackSize += size
-                    itemstack.stackSize -= size
-                    mergedItems = mergedItems :+ itemstack
-                }
+    def sortUsefulChest(usefulchest : TileEntityUsefulChest) = {
+        val m = new HashMap[Int, ItemStacks]
+        usefulchest.usefulChestContents.foreach(is => {
+                if(is != null) {
+                    val s = m.getOrElseUpdate(Item.itemRegistry.getIDForObject(is.getItem), {new ItemStacks(is.getItem)}).damageMap.getOrElseUpdate(is.getItemDamage, {new Stacks})
+                    is.getTagCompound match {
+                        case nbt: NBTTagCompound => s.tagMap.put(nbt, s.tagMap.getOrElse(nbt, 0) + is.stackSize)
+                        case _ => s.stack += is.stackSize
+                    }
             }
-            else {
-                mergedItems = mergedItems :+ itemstack
-            }
-        }
-
-        return mergedItems.toArray[ItemStack]
+        })
+        usefulchest.usefulChestContents = new Array[ItemStack](usefulchest.getSizeInventory())
+        m.toArray.sortBy(_._1).flatMap(_._2.getItemStacks).copyToArray(usefulchest.usefulChestContents)
     }
 }
