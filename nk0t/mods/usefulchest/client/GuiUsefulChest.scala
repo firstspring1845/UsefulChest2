@@ -84,10 +84,8 @@ class GuiUsefulChest(inventory : IInventory, tileEntityUsefulChest : TileEntityU
                 }
                 tileEntityUsefulChest.Page = this.page
                 UsefulChest.packetHandler.sendToServer(new MessageUsefulChest(pos, 0, page))
-                mc.thePlayer.openGui(UsefulChest.Instance, 0, world, x, y, z)
             }
             case SortButtonID => {
-                tileEntityUsefulChest.sortChest
                 UsefulChest.packetHandler.sendToServer(new MessageUsefulChest(pos, 1, -1))
             }
         }

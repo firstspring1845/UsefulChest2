@@ -1,10 +1,9 @@
 package nk0t.mods.usefulchest.network
 
-import cpw.mods.fml.common.network.simpleimpl.{MessageContext, IMessageHandler, IMessage}
-import cpw.mods.fml.relauncher.Side
+import cpw.mods.fml.common.network.simpleimpl.{IMessage, IMessageHandler, MessageContext}
 import io.netty.buffer.ByteBuf
 import net.minecraft.world.ChunkPosition
-import nk0t.mods.usefulchest.{TileEntityUsefulChest, UsefulChestNBT}
+import nk0t.mods.usefulchest.{TileEntityUsefulChest, UsefulChest}
 
 class MessageUsefulChest(var pos: ChunkPosition, var mode: Int, var page: Int) extends IMessage with IMessageHandler[MessageUsefulChest, IMessage] {
 
@@ -25,12 +24,14 @@ class MessageUsefulChest(var pos: ChunkPosition, var mode: Int, var page: Int) e
   }
 
   override def onMessage(message: MessageUsefulChest, ctx: MessageContext): IMessage = {
-    ctx.getServerHandler.playerEntity.getEntityWorld.getTileEntity(message.pos.chunkPosX, message.pos.chunkPosY, message.pos.chunkPosZ) match {
+    val player = ctx.getServerHandler.playerEntity
+    player.getEntityWorld.getTileEntity(message.pos.chunkPosX, message.pos.chunkPosY, message.pos.chunkPosZ) match {
       case usefulChest: TileEntityUsefulChest => {
         message.mode match {
           case 0 => usefulChest.Page = message.page
           case 1 => usefulChest.sortChest
         }
+        ctx.getServerHandler.playerEntity.openGui(UsefulChest.Instance, 0, player.getEntityWorld, usefulChest.xCoord, usefulChest.yCoord, usefulChest.zCoord)
       }
       case _ =>
     }
