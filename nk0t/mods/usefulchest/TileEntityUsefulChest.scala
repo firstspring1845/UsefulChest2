@@ -141,7 +141,7 @@ class TileEntityUsefulChest extends TileEntity with IInventory {
     override def getDescriptionPacket : Packet = {
         val nbt = new NBTTagCompound
         nbt.setInteger(UsefulChestNBT.Page, this.Page)
-        //nbt.setByte(UsefulChestNBT.Direction, this.Direction)
+        nbt.setByte(UsefulChestNBT.Direction, this.Direction)
         val nbt_ = new NBTTagCompound
         return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, -1, nbt)
     }
@@ -149,7 +149,7 @@ class TileEntityUsefulChest extends TileEntity with IInventory {
     override def onDataPacket(net: NetworkManager, pkt: S35PacketUpdateTileEntity): Unit = {
         val nbt = pkt.func_148857_g
         this.Page = nbt.getInteger(UsefulChestNBT.Page)
-        //this.Direction = nbt.getByte(UsefulChestNBT.Direction)
+        this.Direction = nbt.getByte(UsefulChestNBT.Direction)
     }
 
     override def getSizeInventory = 1040

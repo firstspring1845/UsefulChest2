@@ -18,8 +18,9 @@ object UsefulChestUtilities {
                 (List((null, d._2.stack)) ++ d._2.tagMap).flatMap(s => {
                     val is = new ItemStack(item, 0, d._1)
                     is.setTagCompound(s._1)
-                    (0 until s._2 by 64).map(i => {
-                        is.stackSize = Math.min(64, s._2 - i)
+                    val max = is.getMaxStackSize
+                    (0 until s._2 by max).map(i => {
+                        is.stackSize = Math.min(max, s._2 - i)
                         is.copy
                     })
                 })

@@ -14,16 +14,22 @@ import cpw.mods.fml.common.registry.LanguageRegistry
 import cpw.mods.fml.relauncher.Side
 import net.minecraft.block.Block
 import net.minecraft.creativetab.CreativeTabs
-import net.minecraft.init.Blocks
+import net.minecraft.init.{Items, Blocks}
 import net.minecraft.item.ItemStack
+import net.minecraftforge.common.config.{ConfigCategory, Configuration}
 import nk0t.mods.usefulchest.common.CommonProxy
 import nk0t.mods.usefulchest.network.{MessageUsefulChest, GuiHandler}
 
 @Mod(modid = "UsefulChest2", name = "UsefulChest2", version = "1.0.0", modLanguage = "scala")
 class UsefulChest {
 
+    var debug = false
+
     @EventHandler
     def preInit(event : FMLPreInitializationEvent) {
+        val conf = new Configuration(event.getSuggestedConfigurationFile)
+        conf.load
+        debug = conf.get(Configuration.CATEGORY_GENERAL, "debug", false).getBoolean
         UsefulChest.Instance = this
     }
 
@@ -40,7 +46,17 @@ class UsefulChest {
         LanguageRegistry.addName(UsefulChest.usefulChestBlock, "Useful Chest")
         LanguageRegistry.instance().addNameForObject(UsefulChest.usefulChestBlock, "ja_JP", "ユースフルチェスト")
 
-        GameRegistry.addShapelessRecipe(new ItemStack(UsefulChest.usefulChestBlock, 64), Blocks.dirt)
+        GameRegistry.addShapedRecipe(new ItemStack(UsefulChest.usefulChestBlock)
+        ,"idi"
+        ,"dcd"
+        ,"idi"
+        ,Character.valueOf('i')
+        ,Items.iron_ingot
+        ,Character.valueOf('d')
+        ,Items.diamond
+        ,Character.valueOf('c')
+        ,Blocks.chest)
+        if(debug) GameRegistry.addShapelessRecipe(new ItemStack(UsefulChest.usefulChestBlock, 64), Blocks.dirt)
 
         UsefulChest.proxy.registerRenderers()
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new GuiHandler())

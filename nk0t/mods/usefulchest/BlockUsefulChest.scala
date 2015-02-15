@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.texture.IIconRegister
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityItem
 import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.tileentity.TileEntity
@@ -103,7 +104,5 @@ class BlockUsefulChest extends BlockContainer(Material.wood) {
         super.breakBlock(world, i, j, k, block, m)
     }
 
-    override def registerBlockIcons(register: IIconRegister) = {
-        this.blockIcon = register.registerIcon("blockDiamond")
-    }
+    override def getIcon(side: Int, meta: Int) = Blocks.diamond_block.getIcon(0, 0)
 }
